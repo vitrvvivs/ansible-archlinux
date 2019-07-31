@@ -1,0 +1,19 @@
+---
+- name: Create new filesystem
+  include: create-filesystem.yml
+  when: format_disk is defined
+
+- assert: 
+    fail_msg: "Vars `format_device` or [`root_device` and `boot_device`] are required to be set"
+    that: 
+      - root_device is defined
+      - boot_device is defined
+
+- name: Mount devices
+  include: mount-filesystem.yml
+
+- name: Install base system
+  include: install-base.yml
+
+  #- name: Cleanup
+  #  include: cleanup.yml

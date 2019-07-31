@@ -1,0 +1,12 @@
+- name: Unmount boot
+  mount:
+    path: "{{ mount_point }}/boot"
+    state: unmounted
+
+- name: Unmount root
+  mount:
+    path: "{{ mount_point }}"
+    state: unmounted
+
+- name: Cleanup install scripts
+  file: path=/tmp/arch-install-scripts state=absent

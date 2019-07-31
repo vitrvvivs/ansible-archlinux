@@ -1,0 +1,33 @@
+- name: Install filesystem tools
+  package: name={{ item }} state=present
+  with_items:
+    - util-linux
+    - dosfstools
+    - e2fsprogs
+    - grep
+
+- name: Create partitions
+  shell: 
+    cmd: |
+      sfdisk {{ format_device }} << EOF
+      label: gpt
+      name="BIOS boot",        size=2M,    type=21686148-6449-6E6F-744E-656564454649
+      name="EFI System",       size=512M,  type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+      name="Linux filesystem",             type=0FC63DAF-8483-4772-8E79-3D69D8477DE4
+      EOF
+
+- shell: sfdisk -l {{ format_device }} | grep '^{{ format_device }}' | grep -o '^[^ ]\+'
+  register: devices
+
+- set_fact:
+    boot_device: "{{ devices.stdout_lines[1] }}"
+    root_device: "{{ devices.stdout_lines[2] }}"
+
+- name: Create EFI FAT32 partition
+  shell:
+    cmd: |
+      mkfs.vfat -F 32 {{ boot_device }}
+      fatlabel {{ boot_device }} EFI_BOOT
+
+- name: Create Root ext4 partition
+  shell: mkfs.ext4 -L archlinux_root {{ root_device }}

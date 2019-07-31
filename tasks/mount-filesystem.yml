@@ -1,0 +1,15 @@
+- name: Mount root
+  mount:
+    path: "{{ mount_dir }}"
+    src: "{{ root_device }}"
+    fstype: ext4
+    state: mounted
+
+- file: path=/mnt/boot state=directory
+
+- name: Mount boot
+  mount:
+    path: "{{ mount_dir }}/boot"
+    src: "{{ boot_device }}"
+    fstype: vfat
+    state: mounted
