@@ -1,2 +1,0 @@
-- name: Generate fstab
-  command: /tmp/arch-install-scripts/genfstab -U {{ mount_dir }} > {{ mount_dir }}/etc/fstab

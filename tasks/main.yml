@@ -1,19 +1,32 @@
 ---
-- name: Create new filesystem
-  include: create-filesystem.yml
-  when: format_disk is defined
+- block:
+  - name: Create new filesystem
+    include: 00-create-filesystem.yml
+    when: format_device is defined
 
-- assert: 
-    fail_msg: "Vars `format_device` or [`root_device` and `boot_device`] are required to be set"
-    that: 
-      - root_device is defined
-      - boot_device is defined
+  - name: "All required variables set"
+    assert: 
+      fail_msg: "Vars `format_device` or [`root_device` and `boot_device`] are required to be set"
+      that: 
+        - root_device is defined
+        - boot_device is defined
 
-- name: Mount devices
-  include: mount-filesystem.yml
+  - name: Mount the filesystem
+    include: 10-mount-filesystem.yml
 
-- name: Install base system
-  include: install-base.yml
+  - name: Install dependencies
+    include: 30-install-dependencies.yml
 
-  #- name: Cleanup
-  #  include: cleanup.yml
+  - name: Install base system
+    include: 40-install-base.yml
+
+  - name: Provide basic configuration
+    include: 50-configure.yml
+
+  - name: Install bootloader
+    include: 70-install-bootloader.yml
+
+  - name: Cleanup
+    include: 90-cleanup.yml
+  become: true
+  become_user: root

@@ -1,0 +1,5 @@
+- name: Install base system
+  command: "{{ pacstrap }} {{ mount_dir }} base reflector"
+  args:
+    creates: /etc/arch-release
+  register: base_installation

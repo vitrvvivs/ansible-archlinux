@@ -1,0 +1,2 @@
+- name: Cleanup install scripts
+  file: path={{ temp_dir }}/arch-install-scripts state=absent

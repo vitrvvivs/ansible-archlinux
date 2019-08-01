@@ -1,0 +1,28 @@
+- name: Install systemd-boot
+  command: "{{ chroot }} {{ mount_dir }} bootctl --path=/boot install"
+  args:
+    creates: "{{ mount_dir }}/boot/EFI/systemd"
+
+- name: Get root drive UUID
+  shell: blkid {{ root_device }} | grep -oP ' UUID="\K[^"]+'
+  register: blkid
+  changed_when: False
+
+- set_fact:
+    uuid: "{{ blkid.stdout }}"
+    cpu_vendor: "{{ 'intel' if 'GenuineIntel' in ansible_facts.processor else 'amd' }}"
+
+- name: Install microcode
+  command: "{{ chroot }} pacman -S {{ cpu_vendor }}-ucode"
+
+- name: Configure bootloader
+  copy:
+    src: loader.conf
+    dest: "{{ mount_dir }}/boot/loader/loader.conf"
+    force: no
+
+- name: Configure bootloader
+  template:
+    src: arch.conf
+    dest: "{{ mount_dir }}/boot/loader/entries/arch.conf"
+    force: no

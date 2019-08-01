@@ -1,0 +1,32 @@
+- block:
+    - name: Detect install-scripts 
+      shell: which pacstrap && which genfstab && which arch-chroot
+      changed_when: False
+    - set_fact:
+        pacstrap: pacstrap
+        genfstab: genfstab
+        chroot: arch-chroot
+  rescue:
+    - name: Install build tools
+      package: name={{ item }} state=present
+      with_items:
+        - coreutils
+        - util-linux
+        - awk
+        - bash
+        - make
+
+    - name: Clone Arch install scripts
+      git:
+        dest: "{{ temp_dir }}/arch-install-scripts"
+        repo: https://git.archlinux.org/arch-install-scripts.git
+
+    - name: Build install scripts
+      command: make
+      args:
+        chdir: "{{ temp_dir }}/arch-install-scripts"
+
+    - set_fact:
+        pacstrap: "{{ temp_dir }}/arch-install-scripts/pacstrap"
+        genfstab: "{{ temp_dir }}/arch-install-scripts/genfstab"
+        chroot: "{{ temp_dir }}/arch-install-scripts/arch-chroot"
