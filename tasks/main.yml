@@ -14,11 +14,26 @@
   - name: Mount the filesystem
     include: 10-mount-filesystem.yml
 
-  - name: Install dependencies
-    include: 30-install-dependencies.yml
+  - name: Check if Arch is already installed
+    stat: path={{ mount_dir }}/etc/arch-release
+    register: arch_installed
 
-  - name: Install base system
-    include: 40-install-base.yml
+  - block:
+    - name: Install dependencies
+      include: 30-check-dependencies.yml
+
+    - name: Install dependency install-scripts
+      include: 31-install-scripts.yml
+
+    - name: Install dependency pacman
+      include: ./32-install-pacman.yml
+
+    - name: Install dependency reflector
+      include: ./33-install-reflector.yml
+
+    - name: Install base system
+      include: 40-install-base.yml
+    when: not arch_installed.stat.exists
 
   - name: Provide basic configuration
     include: 50-configure.yml

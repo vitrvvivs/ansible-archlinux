@@ -1,4 +1,6 @@
-Ansible role for install Arch on a device
+Ansible role for install Arch on a device  
+Assumes the host is GNU/Linux, tested on Arch, Alpine, and Debian.  
+Running it from a non-Arch based distro will compile dependencies.
 
 proposal:  
 start livecd/pxe and setup ssh  

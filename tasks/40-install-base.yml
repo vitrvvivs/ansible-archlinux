@@ -1,5 +1,12 @@
 - name: Install base system
-  command: "{{ pacstrap }} {{ mount_dir }} base reflector"
+  command: "{{ pacstrap }} -C {{ pacman_prefix }}/etc/pacman.conf -M {{ mount_dir }} base ca-certificate-utils"
   args:
-    creates: /etc/arch-release
-  register: base_installation
+    creates: "{{ mount_dir }}/etc/arch-release"
+  environment:
+    PATH: "{{ pacman_prefix }}/bin:{{ ansible_env.PATH }}"
+
+- name: Copy mirrorlist
+  command: cp -a {{ pacman_prefix }}/etc/pacman.d/mirrorlist {{ mount_dir }}/etc/pacman.d/mirrorlist
+
+- name: Fix ca certificates
+  command: "{{ chroot }} update-ca-trust"

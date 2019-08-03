@@ -1,0 +1,37 @@
+- block:
+  - name: Try to install scripts via package manager
+    package: name=arch-install-scripts state=present
+
+  rescue:
+  - name: Install build tools
+    package: name={{ item }} state=present
+    with_items:
+      - coreutils
+      - util-linux
+      - gawk
+      - bash
+      - make
+      - m4
+
+  - set_fact:
+      install_scripts_dir: "{{ temp_dir }}/{{ install_scripts_version }}"
+
+  - name: Clone Arch install scripts
+    shell: curl -L https://git.archlinux.org/arch-install-scripts.git/snapshot/{{ install_scripts_version }}.tar.xz | tar -x -C /{{ temp_dir }} --xz
+    args:
+      creates: "{{ install_scripts_dir }}"
+
+  - name: Build install scripts
+    make: 
+      target: "{{ item }}"
+      chdir: "{{ install_scripts_dir }}"
+    with_items:
+      - pacstrap
+      - genfstab
+      - arch-chroot
+
+  - set_fact:
+      pacstrap: "{{ install_scripts_dir }}/pacstrap"
+      genfstab: "{{ install_scripts_dir }}/genfstab"
+      chroot: "{{ install_scripts_dir }}/arch-chroot {{ mount_dir }}"
+  when: install_scripts_installed.rc != 0

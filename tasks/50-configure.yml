@@ -1,14 +1,27 @@
-- name: Generate fstab
-  shell: "{{ genfstab }} -U {{ mount_dir }} > {{ mount_dir }}/etc/fstab"
-  args:
-    creates: "{{ mount_dir }}/etc/fstab"
+- set_fact:
+    chroot: "{{ mount_dir }}/usr/bin/arch-chroot {{ mount_dir }}"
+  when: chroot is not defined
+- set_fact:
+    pacman: "{{ chroot }} pacman --noconfirm"
 
-- name: Update mirrors
-  command: "reflector --protocol https --age 1 --number 10 --sort rate"
-  when: base_installation.changed
+- block:
+  - name: Check for existing fstab
+    command: grep -q '^\w*[^#]' {{ mount_dir }}/etc/fstab
+  rescue:
+  - name: Generate fstab
+    shell: "{{ genfstab }} -U {{ mount_dir }} > {{ mount_dir }}/etc/fstab"
+
+- name: Initialize pacman keys
+  command: "{{ chroot }} pacman-key --init"
+  args:
+    creates: /etc/pacman.d/gnupg
+
+- name: Update pacman keys
+  command: "{{ chroot }} pacman-key --populate archlinux"
 
 - name: Update packages
-  command: "{{ chroot }} pacman -Sy"
+  command: "{{ pacman }} -Sy"
 
 - name: Install additional packages
-  command: "{{ chroot }} pacman -S {{ extra_packages | join(' ') }}"
+  command: "{{ pacman }} -S {{ extra_packages | join(' ') }}"
+  when: ( extra_packages | length ) > 0

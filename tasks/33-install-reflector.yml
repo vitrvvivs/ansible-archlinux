@@ -1,0 +1,32 @@
+- set_fact: 
+    mirrorlist: "{{ pacman_prefix }}/etc/pacman.d/mirrorlist"
+- set_fact:
+    reflector_args: "--protocol https --age 1 --number 10 --sort rate --save {{ mirrorlist }}"
+
+- block:
+  - name: Try to install reflector via package manager
+    package: name=reflector state=present
+
+  - set_fact:
+      reflector_dir: /usr/bin/
+  rescue:
+  - name: Install build tools
+    package: name={{ item }} state=present
+    with_items:
+      - python3
+
+  - set_fact:
+      reflector_dir: "{{ temp_dir }}/{{ reflector_version }}"
+
+  - name: Get reflector
+    shell: curl https://xyne.archlinux.ca/projects/reflector/src/{{ reflector_version }}.tar.xz | tar -C {{ temp_dir }} -x --xz
+  when: reflector_installed.rc != 0
+
+- file: path="{{ pacman_prefix }}/etc/pacman.d" state=directory
+
+- name: Update mirrors
+  command: "{{ reflector_dir }}/reflector {{ reflector_args }}"
+  args:
+    creates: "{{ mirrorlist }}"
+  environment:
+    PYTHONPATH: "{{ reflector_dir }}"

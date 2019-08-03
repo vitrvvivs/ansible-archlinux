@@ -1,0 +1,53 @@
+- block:
+  - name: "pacman available as a package"
+    assert:
+      that:
+        - ansible_facts.distribution in ('Arch', 'Alpine', 'Gentoo', 'Fedora')
+
+  - name: Install pacman via package manager
+    package: name=pacman state=present
+  rescue:
+  - name: Install build tools
+    package: name={{ item }} state=present
+    with_items:
+      - curl
+      - gzip
+      - gcc
+      - make
+      - perl
+      - pkg-config
+
+  - name: Install Debian-specific build packages
+    package: name={{ item }}
+    with_items:
+      - libarchive-dev
+      - libssl-dev
+    when: ansible_facts.distribution in ('Debian',)
+
+  - set_fact:
+      pacman_dir: "{{ temp_dir }}/{{ pacman_version }}"
+      pacman_prefix: "/tmp/"
+
+  - name: Clone pacman
+    shell: curl https://sources.archlinux.org/other/pacman/{{ pacman_version }}.tar.gz | gunzip -c | tar -C /{{ temp_dir }} -x
+    args:
+      creates: "{{ pacman_dir }}"
+
+  - name: Configure
+    command: ./configure --disable-doc --prefix={{ pacman_prefix }} --sysconfdir={{ pacman_prefix }}/etc/ --localstatedir=/var LDFLAGS="-static"
+    args:
+      chdir: "{{ pacman_dir }}"
+
+  - name: Build pacman
+    make: chdir="{{ pacman_dir }}" target="{{ item }}"
+    with_items:
+      - all
+      - install
+
+  - name: Configure pacman
+    template:
+      src: pacman.conf
+      dest: "{{ pacman_prefix }}/etc/pacman.conf"
+      force: yes
+
+  when: pacman_installed.rc != 0

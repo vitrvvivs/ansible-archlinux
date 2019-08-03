@@ -1,5 +1,5 @@
 - name: Install systemd-boot
-  command: "{{ chroot }} {{ mount_dir }} bootctl --path=/boot install"
+  command: "{{ chroot }} bootctl --path=/boot install"
   args:
     creates: "{{ mount_dir }}/boot/EFI/systemd"
 
@@ -13,7 +13,7 @@
     cpu_vendor: "{{ 'intel' if 'GenuineIntel' in ansible_facts.processor else 'amd' }}"
 
 - name: Install microcode
-  command: "{{ chroot }} pacman -S {{ cpu_vendor }}-ucode"
+  command: "{{ pacman }} -S {{ cpu_vendor }}-ucode"
 
 - name: Configure bootloader
   copy:
