@@ -4,4 +4,4 @@
     - install_scripts_dir
     - pacman_dir
     - reflector_dir
-  when: "{{ item }} is defined"
+  when: item is defined

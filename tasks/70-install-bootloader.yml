@@ -14,6 +14,8 @@
 
 - name: Install microcode
   command: "{{ pacman }} -S {{ cpu_vendor }}-ucode"
+  args:
+    creates: "{{ mount_dir }}/boot/{{ cpu_vendor }}-ucode.img"
 
 - name: Configure bootloader
   copy:

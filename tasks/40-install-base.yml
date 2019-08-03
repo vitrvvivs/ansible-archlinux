@@ -1,5 +1,5 @@
 - name: Install base system
-  command: "{{ pacstrap }} -C {{ pacman_prefix }}/etc/pacman.conf -M {{ mount_dir }} base ca-certificate-utils"
+  command: "{{ pacstrap }} -C {{ pacman_prefix }}/etc/pacman.conf -M {{ mount_dir }} base arch-install-scripts"
   args:
     creates: "{{ mount_dir }}/etc/arch-release"
   environment:

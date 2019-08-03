@@ -7,6 +7,7 @@
 - block:
   - name: Check for existing fstab
     command: grep -q '^\w*[^#]' {{ mount_dir }}/etc/fstab
+    changed_when: False
   rescue:
   - name: Generate fstab
     shell: "{{ genfstab }} -U {{ mount_dir }} > {{ mount_dir }}/etc/fstab"
@@ -14,14 +15,11 @@
 - name: Initialize pacman keys
   command: "{{ chroot }} pacman-key --init"
   args:
-    creates: /etc/pacman.d/gnupg
+    creates: "{{ mount_dir }}/etc/pacman.d/gnupg"
 
 - name: Update pacman keys
   command: "{{ chroot }} pacman-key --populate archlinux"
 
 - name: Update packages
-  command: "{{ pacman }} -Sy"
+  command: "{{ pacman }} -Syu"
 
-- name: Install additional packages
-  command: "{{ pacman }} -S {{ extra_packages | join(' ') }}"
-  when: ( extra_packages | length ) > 0

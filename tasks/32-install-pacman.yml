@@ -26,7 +26,7 @@
 
   - set_fact:
       pacman_dir: "{{ temp_dir }}/{{ pacman_version }}"
-      pacman_prefix: "/tmp/"
+      pacman_prefix: "{{ temp_dir }}"
 
   - name: Clone pacman
     shell: curl https://sources.archlinux.org/other/pacman/{{ pacman_version }}.tar.gz | gunzip -c | tar -C /{{ temp_dir }} -x
