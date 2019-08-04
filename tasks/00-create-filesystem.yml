@@ -6,6 +6,7 @@
 
 - name: Confirm format device
   pause: prompt="Continue with formatting format {{ model.stdout or format_device }}? (Ctrl-c to cancel)"
+  when: no_verify_format is not defined or no_verify_format is false
 
 - name: Install filesystem tools
   package: name={{ item }} state=present

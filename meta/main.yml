@@ -1,0 +1,24 @@
+galaxy_info:
+  role_name: archlinux
+  author: vitrvvivs
+  description: Install Arch Linux on a device
+  license: BSD
+  min_ansible_version: 2.4
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Alpine
+      versions:
+        - all
+    - name: 
+      versions:
+        - all
+    - name: Debian
+        - all
+    - name: Ubuntu
+        - all
+  galaxy_tags:
+    - system
+    - install
+    - archlinux
