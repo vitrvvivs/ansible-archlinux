@@ -1,5 +1,5 @@
 - block:
-  - name: Try to install scripts via package manager
+  - name: Try to install arch-install-scripts via package manager
     package: name=arch-install-scripts state=present
 
   rescue:
@@ -21,7 +21,7 @@
     args:
       creates: "{{ install_scripts_dir }}"
 
-  - name: Build install scripts
+  - name: Build Arch install scripts
     make: 
       target: "{{ item }}"
       chdir: "{{ install_scripts_dir }}"

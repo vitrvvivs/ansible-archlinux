@@ -1,5 +1,5 @@
 - name: Install base system
-  command: "{{ pacstrap }} -C {{ pacman_prefix }}/etc/pacman.conf -M {{ mount_dir }} base arch-install-scripts"
+  command: "{{ pacstrap }} -cM -C {{ pacman_prefix }}/etc/pacman.conf {{ mount_dir }} base openssh python"
   args:
     creates: "{{ mount_dir }}/etc/arch-release"
   environment:

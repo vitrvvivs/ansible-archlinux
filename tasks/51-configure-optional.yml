@@ -1,0 +1,56 @@
+- block:
+  - name: Set hostname
+    copy: content="{{ hostname }}" dest="{{ mount_dir }}/etc/hostname"
+
+  - name: Populate hosts file
+    template: src="hosts" dest="{{ mount_dir }}/etc/hosts"
+  when: hostname is defined
+
+- name: Set root password
+  command: "{{ chroot }} bash -c 'echo -e \"{{ root_password }}\n{{ root_password }}\" | passwd root'"
+  when: root_password is defined
+
+- block:
+  - name: Create .ssh dir
+    file: state=directory mode=700 path="{{ mount_dir }}/root/.ssh"
+
+  - name: Create authorized_keys
+    copy: content="{{ authorized_keys }}" dest="{{ mount_dir }}/root/.ssh/authorized_keys"
+
+  - name: Ensure root can log in
+    command: "{{ chroot }} systemctl enable sshd"
+    args:
+      creates: "{{ mount_dir }}/etc/systemd/system/multi-user.target.wants/sshd.service"
+  when: authorized_keys is defined
+
+- block:
+  - name: Find timezone file
+    shell: "find . -iname {{ timezone | replace(' ', '_') }} | head -n 1"
+    args:
+      chdir: "{{ mount_dir }}/usr/share/zoneinfo"
+    register: tz_file
+    changed_when: False
+
+  - name: Set timezone
+    file: state=link path="{{ mount_dir }}/etc/localtime" src="../../usr/share/zoneinfo/{{ tz_file.stdout }}"
+
+  - name: Sync hardware clock
+    command: "{{ chroot }} hwclock --systohc"
+    args:
+      creates: "{{ mount_dir }}/etc/adjtime"
+  when: timezone is defined
+
+- block:
+  - name: Update locale.gen
+    replace:
+      path: "{{ mount_dir }}/etc/locale.gen"
+      regexp: '#({{ locale }}) '
+      replace: '\1 '
+
+  - name: Generate locales
+    command: "{{ chroot }} locale-gen"
+
+  - copy: content="LANG={{ locale }}" dest="{{ mount_dir }}/etc/locale.conf" force=no
+  when: locale is defined
+
+

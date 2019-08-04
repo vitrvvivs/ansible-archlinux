@@ -35,8 +35,17 @@
       include: 40-install-base.yml
     when: not arch_installed.stat.exists
 
+  - name: Install extra packages
+    include: 41-install-extra.yml
+
   - name: Provide basic configuration
-    include: 50-configure.yml
+    include: 50-configure-essential.yml
+
+  - name: Provide optional configuration
+    include: 51-configure-optional.yml
+
+  - name: Provide additional configuration
+    include: 52-configure-extra.yml
 
   - name: Install bootloader
     include: 70-install-bootloader.yml

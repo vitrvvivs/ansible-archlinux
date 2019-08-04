@@ -1,16 +1,15 @@
+- name: Check if special chroot is necessary
+  stat: path={{ mount_dir }}/dev/zero
+  register: dev_zero
 - set_fact:
     chroot: "{{ mount_dir }}/usr/bin/arch-chroot {{ mount_dir }}"
   when: chroot is not defined
 - set_fact:
-    pacman: "{{ chroot }} pacman --noconfirm"
+    chroot: "chroot {{ mount_dir }}"
+  when: dev_zero.stat.exists
 
-- block:
-  - name: Check for existing fstab
-    command: grep -q '^\w*[^#]' {{ mount_dir }}/etc/fstab
-    changed_when: False
-  rescue:
-  - name: Generate fstab
-    shell: "{{ genfstab }} -U {{ mount_dir }} > {{ mount_dir }}/etc/fstab"
+- set_fact:
+    pacman: "{{ chroot }} pacman --noconfirm"
 
 - name: Initialize pacman keys
   command: "{{ chroot }} pacman-key --init"
@@ -23,3 +22,6 @@
 - name: Update packages
   command: "{{ pacman }} -Syu"
 
+- name: Install optional packages
+  command: "{{ pacman }} -S {{ extra_packages | join(' ') }}"
+  when: extra_packages is defined and (extra_packages | length) > 0

@@ -1,18 +1,22 @@
-- name: Install filesystem tools
-  package: name={{ item }} state=present
-  with_items:
-    - util-linux
-    - dosfstools
-    - e2fsprogs
-    - grep
-
 - name: Get drive model
   command: lsblk -ndo MODEL {{ format_device }}
   register: model
   changed_when: False
+  ignore_errors: yes
 
 - name: Confirm format device
   pause: prompt="Continue with formatting format {{ model.stdout or format_device }}? (Ctrl-c to cancel)"
+
+- name: Install filesystem tools
+  package: name={{ item }} state=present
+  with_items:
+    - dosfstools
+    - e2fsprogs
+    - grep
+
+- name: Unmount device
+  shell: grep -oP '^{{ format_device }}[a-z0-9]+ \K[^ ]+' /proc/mounts | head -n 1 | xargs umount -R
+  failed_when: False
 
 - name: Create partitions
   shell: 

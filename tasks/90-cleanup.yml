@@ -1,7 +1,0 @@
-- name: Cleanup temporary files
-  file: path={{ item }} state=absent
-  with_items:
-    - install_scripts_dir
-    - pacman_dir
-    - reflector_dir
-  when: item is defined

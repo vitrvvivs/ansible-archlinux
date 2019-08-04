@@ -1,5 +1,6 @@
 - block:
-  - name: "pacman available as a package"
+  # Other distros may have something else named `pacman`
+  - name: "Check if pacman is available as a package"
     assert:
       that:
         - ansible_facts.distribution in ('Arch', 'Alpine', 'Gentoo', 'Fedora')

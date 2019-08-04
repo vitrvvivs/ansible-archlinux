@@ -11,8 +11,15 @@ required vars:
     or root_device and boot_device to install onto  
 
 optional vars:
-    extra_packages - to install during pacstrap
     mount_dir - where root_device should be mounted
+    hostname
+    root_password
+    authorized_hosts
+    extra_packages
+    extra_files - local directory to be merged into mount_dir
+    enable_services
+    timezone - something in the tz database; 'New York', 'London', 'UTC', etc.
+    locale - 'en_US', 'zh_TW.UTF-8', etc.
 
 example usage:
     To install in a USB drive

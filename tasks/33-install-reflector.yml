@@ -6,9 +6,6 @@
 - block:
   - name: Try to install reflector via package manager
     package: name=reflector state=present
-
-  - set_fact:
-      reflector_dir: /usr/bin/
   rescue:
   - name: Install build tools
     package: name={{ item }} state=present

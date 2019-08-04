@@ -1,4 +1,4 @@
-- name: Detect install-scripts 
+- name: Detect arch-install-scripts 
   shell: which pacstrap && which genfstab && which arch-chroot
   register: install_scripts_installed
   ignore_errors: yes
@@ -19,5 +19,6 @@
 - set_fact:
     pacstrap: pacstrap
     genfstab: genfstab
-    chroot: "arch-chroot {{ mount_dir }}"
+    chroot: arch-chroot {{ mount_dir }}
     pacman_prefix: /
+    reflector_dir: /usr/bin/

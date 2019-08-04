@@ -1,6 +1,11 @@
 mount_dir: /mnt
 temp_dir: /tmp
-extra_packages: []
+extra_packages:
+  - openssh
+enable_services: 
+  - sshd
+timezone: UTC
+locale: en_US.UTF-8
 
 install_scripts_version: arch-install-scripts-22
 pacman_version: pacman-5.1.3

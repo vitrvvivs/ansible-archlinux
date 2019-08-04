@@ -2,6 +2,11 @@
   command: "{{ chroot }} bootctl --path=/boot install"
   args:
     creates: "{{ mount_dir }}/boot/EFI/systemd"
+  register: systemd_fresh_install
+
+- name: Remove default loader.conf
+  file: path="{{ mount_dir }}/boot/loader/loader.conf" state=absent
+  when: systemd_fresh_install.changed
 
 - name: Get root drive UUID
   shell: blkid {{ root_device }} | grep -oP ' UUID="\K[^"]+'
