@@ -1,15 +1,13 @@
 - name: Mount root
-  mount:
-    path: "{{ mount_dir }}"
-    src: "{{ root_device }}"
-    fstype: ext4
-    state: mounted
+  command: mount -t ext4 "{{ root_device }}" "{{ mount_dir }}"
+  register: mount_root
+  failed_when: mount_root.rc not in (0, 32)
+  warn: false
 
-- file: path=/mnt/boot state=directory
+- file: path="{{ mount_dir }}/boot" state=directory
 
 - name: Mount boot
-  mount:
-    path: "{{ mount_dir }}/boot"
-    src: "{{ boot_device }}"
-    fstype: vfat
-    state: mounted
+  command: mount -t vfat "{{ boot_device }}" "{{ mount_dir }}/boot"
+  register: mount_boot
+  failed_when: mount_boot.rc not in (0, 32)
+  warn: false

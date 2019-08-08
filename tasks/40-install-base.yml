@@ -4,6 +4,7 @@
     creates: "{{ mount_dir }}/etc/arch-release"
   environment:
     PATH: "{{ pacman_prefix }}/bin:{{ ansible_env.PATH }}"
+  register: base_install
 
 - name: Copy mirrorlist
   command: cp -a {{ pacman_prefix }}/etc/pacman.d/mirrorlist {{ mount_dir }}/etc/pacman.d/mirrorlist

@@ -49,8 +49,5 @@
 
   - name: Install bootloader
     include: 70-install-bootloader.yml
-
-  - name: Cleanup
-    include: 90-cleanup.yml
   become: true
   become_user: root

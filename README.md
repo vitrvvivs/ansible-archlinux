@@ -37,6 +37,7 @@ extra_packages    for things like networking
 enable_services
 timezone          something in the tz database; 'New York', 'London', 'UTC', etc.
 locale            'en_US', 'zh_TW.UTF-8', etc.
+reboot            reboot after fresh install
 ```
 
 ### Examples:
