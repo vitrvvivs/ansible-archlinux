@@ -34,4 +34,4 @@
       pacstrap: "{{ install_scripts_dir }}/pacstrap"
       genfstab: "{{ install_scripts_dir }}/genfstab"
       chroot: "{{ install_scripts_dir }}/arch-chroot {{ mount_dir }}"
-  when: install_scripts_installed.rc != 0
+  when: install_scripts_required

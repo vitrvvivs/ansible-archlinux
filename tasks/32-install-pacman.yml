@@ -51,4 +51,4 @@
       dest: "{{ pacman_prefix }}/etc/pacman.conf"
       force: yes
 
-  when: pacman_installed.rc != 0
+  when: pacman_required

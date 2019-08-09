@@ -1,13 +1,30 @@
-- name: Install base system
-  command: "{{ pacstrap }} -cM -C {{ pacman_prefix }}/etc/pacman.conf {{ mount_dir }} base openssh python"
-  args:
-    creates: "{{ mount_dir }}/etc/arch-release"
-  environment:
-    PATH: "{{ pacman_prefix }}/bin:{{ ansible_env.PATH }}"
-  register: base_install
+- block:
+  - set_fact: 
+      mirrorlist: "{{ pacman_prefix }}/etc/pacman.d/mirrorlist"
+  - set_fact:
+      reflector_args: "--protocol https --age 1 --number 10 --sort rate --save {{ mirrorlist }}"
 
-- name: Copy mirrorlist
-  command: cp -a {{ pacman_prefix }}/etc/pacman.d/mirrorlist {{ mount_dir }}/etc/pacman.d/mirrorlist
+  - file: path="{{ pacman_prefix }}/etc/pacman.d" state=directory
 
-- name: Fix ca certificates
-  command: "{{ chroot }} update-ca-trust"
+  - name: Update mirrors
+    command: "{{ reflector_dir }}/reflector {{ reflector_args }}"
+    args:
+      creates: "{{ mirrorlist }}"
+    environment:
+      PYTHONPATH: "{{ reflector_dir }}"
+
+  - name: Install base system
+    command: "{{ pacstrap }} -cM -C {{ pacman_prefix }}/etc/pacman.conf {{ mount_dir }} base"
+    args:
+      creates: "{{ mount_dir }}/etc/arch-release"
+    environment:
+      PATH: "{{ pacman_prefix }}/bin:{{ ansible_env.PATH }}"
+    register: base_install
+
+  - name: Copy mirrorlist
+    command: cp -a {{ pacman_prefix }}/etc/pacman.d/mirrorlist {{ mount_dir }}/etc/pacman.d/mirrorlist
+
+  - name: Fix ca certificates
+    command: "{{ chroot }} update-ca-trust"
+
+  when: base_install_required

@@ -10,11 +10,17 @@
 
 - name: Get root drive UUID
   shell: blkid {{ root_device }} | grep -oP ' UUID="\K[^"]+'
-  register: blkid
+  register: root_blkid
+  changed_when: False
+
+- name: Get boot drive UUID
+  shell: blkid {{ boot_device }} | grep -oP ' UUID="\K[^"]+'
+  register: boot_blkid
   changed_when: False
 
 - set_fact:
-    uuid: "{{ blkid.stdout }}"
+    root_uuid: "{{ root_blkid.stdout }}"
+    boot_uuid: "{{ boot_blkid.stdout }}"
     cpu_vendor: "{{ 'intel' if 'GenuineIntel' in ansible_facts.processor else 'amd' }}"
 
 - name: Install microcode

@@ -1,13 +1,3 @@
-- name: Check if special chroot is necessary
-  stat: path={{ mount_dir }}/dev/zero
-  register: dev_zero
-- set_fact:
-    chroot: "{{ mount_dir }}/usr/bin/arch-chroot {{ mount_dir }}"
-  when: chroot is not defined
-- set_fact:
-    chroot: "chroot {{ mount_dir }}"
-  when: dev_zero.stat.exists
-
 - set_fact:
     pacman: "{{ chroot }} pacman --noconfirm"
 
@@ -22,6 +12,10 @@
 - name: Update packages
   command: "{{ pacman }} -Syu"
 
-- name: Install optional packages
+- name: Install extra packages from repo
   command: "{{ pacman }} -S {{ extra_packages | join(' ') }}"
   when: extra_packages is defined and (extra_packages | length) > 0
+
+- name: Install local packages
+  command: "{{ pacman }} -U {{ local_packages | join(' ') }}"
+  when: local_packages is defined and (local_packages | length) > 0
