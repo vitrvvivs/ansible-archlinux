@@ -2,35 +2,39 @@
   stat: path={{ mount_dir }}/etc/arch-release
   register: arch_installed
 
-- name: Detect arch-install-scripts 
-  shell: which pacstrap && which genfstab && which arch-chroot
-  register: install_scripts_installed
-  ignore_errors: yes
-  changed_when: False
-
-- name: Detect pacman
-  shell: pacman -V | grep libalpm
-  register: pacman_installed
-  ignore_errors: yes
-  changed_when: False
-
-- name: Detect reflector
-  shell: which reflector
-  register: reflector_installed
-  ignore_errors: yes
-  changed_when: False
-
 - name: Check if special chroot is necessary
   stat: path={{ mount_dir }}/dev/zero
   register: dev_zero
 
 - set_fact:
-    base_install_required: not arch_installed.stat.exists
-    arch_chroot_required: not dev_zero.stat.exists
+    base_install_required: "{{ not arch_installed.stat.exists }}"
+    arch_chroot_required: "{{ not dev_zero.stat.exists }}"
+
+- name: Detect arch-install-scripts 
+  shell: which pacstrap && which genfstab && which arch-chroot
+  register: install_scripts_installed
+  ignore_errors: yes
+  changed_when: False
+  when: base_install_required or arch_chroot_required
+
+- block: 
+  - name: Detect pacman
+    shell: pacman -V | grep libalpm
+    register: pacman_installed
+    ignore_errors: yes
+    changed_when: False
+
+  - name: Detect reflector
+    shell: which reflector
+    register: reflector_installed
+    ignore_errors: yes
+    changed_when: False
+  when: base_install_required
+
 - set_fact:
-    install_scripts_required: (base_install_required or arch_chroot_required) and install_scripts_installed.rc != 0
-    pacman_required: base_install_required and pacman_installed.rc != 0
-    reflector_required: base_install_required and reflector_installed.rc != 0
+    install_scripts_required: "{{ (base_install_required or arch_chroot_required) and install_scripts_installed.rc != 0 }}"
+    pacman_required: "{{ base_install_required and pacman_installed.rc != 0 }}"
+    reflector_required: "{{ base_install_required and reflector_installed.rc != 0 }}"
 
 - set_fact:
     pacstrap: pacstrap
@@ -38,6 +42,7 @@
     chroot: arch-chroot {{ mount_dir }}
     pacman_prefix: /
     reflector_dir: /usr/bin/
+
 - set_fact:
     chroot: "chroot {{ mount_dir }}"
   when: not arch_chroot_required

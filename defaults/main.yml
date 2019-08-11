@@ -6,6 +6,7 @@ enable_services:
   - sshd
 timezone: UTC
 locale: en_US.UTF-8
+no_verify_format: false
 
 install_scripts_version: arch-install-scripts-22
 pacman_version: pacman-5.1.3

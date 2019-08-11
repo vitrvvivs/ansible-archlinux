@@ -1,13 +1,15 @@
 - name: Mount root
   command: mount -t ext4 "{{ root_device }}" "{{ mount_dir }}"
+  args:
+    warn: false
   register: mount_root
   failed_when: mount_root.rc not in (0, 32)
-  warn: false
 
 - file: path="{{ mount_dir }}/boot" state=directory
 
 - name: Mount boot
   command: mount -t vfat "{{ boot_device }}" "{{ mount_dir }}/boot"
+  args:
+    warn: false
   register: mount_boot
   failed_when: mount_boot.rc not in (0, 32)
-  warn: false

@@ -45,6 +45,9 @@
   - name: Install bootloader
     include: 70-install-bootloader.yml
 
+  - name: Report new UUIDs
+    include: 80-report.yml
+
   - name: Reboot
     include: 90-reboot.yml
   become: true

@@ -13,9 +13,17 @@
   command: "{{ pacman }} -Syu"
 
 - name: Install extra packages from repo
-  command: "{{ pacman }} -S {{ extra_packages | join(' ') }}"
+  command: "{{ pacman }} -S {{ item }}"
   when: extra_packages is defined and (extra_packages | length) > 0
+  with_items: "{{ extra_packages }}"
+
+- name: Copy local package builds
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mount_dir }}/var/cache/pacman/pkg/{{ item | basename }}"
+  with_items: "{{ local_packages }}"
 
 - name: Install local packages
-  command: "{{ pacman }} -U {{ local_packages | join(' ') }}"
+  command: "{{ pacman }} -U /var/cache/pacman/pkg/{{ item | basename }}"
   when: local_packages is defined and (local_packages | length) > 0
+  with_items: "{{ local_packages }}"

@@ -1,2 +1,2 @@
 - reboot:
-  when: reboot is defined and reboot is true and base_install.changed
+  when: base_install.changed and reboot is defined and reboot == true
