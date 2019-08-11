@@ -1,3 +1,4 @@
+- file: path="{{ mount_dir }}" state=directory
 - name: Mount root
   command: mount -t ext4 "{{ root_device }}" "{{ mount_dir }}"
   args:
@@ -6,7 +7,6 @@
   failed_when: mount_root.rc not in (0, 32)
 
 - file: path="{{ mount_dir }}/boot" state=directory
-
 - name: Mount boot
   command: mount -t vfat "{{ boot_device }}" "{{ mount_dir }}/boot"
   args:
