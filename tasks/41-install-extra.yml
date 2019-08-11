@@ -21,9 +21,15 @@
   copy:
     src: "{{ item }}"
     dest: "{{ mount_dir }}/var/cache/pacman/pkg/{{ item | basename }}"
-  with_items: "{{ local_packages }}"
+  with_items: "{{ local_packages | reject('match', '^(http|https|ftp)://') | list }}"
+
+- name: Download local package builds
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ mount_dir }}/var/cache/pacman/pkg/{{ item | basename }}"
+  with_items: "{{ local_packages | select('match', '^(http|https|ftp)://') | list }}"
 
 - name: Install local packages
-  command: "{{ pacman }} -U /var/cache/pacman/pkg/{{ item | basename }}"
+  command: "{{ pacman }} -U /var/cache/pacman/pkg/{{ item }}"
   when: local_packages is defined and (local_packages | length) > 0
-  with_items: "{{ local_packages }}"
+  with_items: "{{ local_packages | map('basename') | list }}"
