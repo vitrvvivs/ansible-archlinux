@@ -32,9 +32,9 @@
   when: base_install_required
 
 - set_fact:
-    install_scripts_required: "{{ (base_install_required or arch_chroot_required) and install_scripts_installed.rc != 0 }}"
-    pacman_required: "{{ base_install_required and pacman_installed.rc != 0 }}"
-    reflector_required: "{{ base_install_required and reflector_installed.rc != 0 }}"
+    install_scripts_required: "{{ ((base_install_required or arch_chroot_required) | bool) and install_scripts_installed.rc != 0 }}"
+    pacman_required: "{{ (base_install_required | bool) and pacman_installed.rc != 0 }}"
+    reflector_required: "{{ (base_install_required | bool) and reflector_installed.rc != 0 }}"
 
 - set_fact:
     pacstrap: pacstrap

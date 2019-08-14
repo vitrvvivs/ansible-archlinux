@@ -39,11 +39,11 @@
   - name: Provide optional configuration
     include: 51-configure-optional.yml
 
-  - name: Provide additional configuration
-    include: 52-configure-extra.yml
-
   - name: Install bootloader
     include: 70-install-bootloader.yml
+
+  - name: Provide additional configuration
+    include: 75-configure-extra.yml
 
   - name: Report new UUIDs
     include: 80-report.yml
