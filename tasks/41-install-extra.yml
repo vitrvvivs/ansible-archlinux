@@ -1,5 +1,5 @@
 - set_fact:
-    pacman: "{{ chroot }} pacman --noconfirm"
+    pacman: "{{ chroot }} pacman --noconfirm --needed"
 
 - name: Initialize pacman keys
   command: "{{ chroot }} pacman-key --init"
@@ -14,6 +14,8 @@
 
 - name: Install extra packages from repo
   command: "{{ pacman }} -S {{ item }}"
+  register: installed
+  changed_when: installed.stdout is not search(item+".* is up to date")
   when: extra_packages is defined and (extra_packages | length) > 0
   with_items: "{{ extra_packages }}"
 

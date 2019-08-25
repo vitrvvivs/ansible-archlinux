@@ -1,0 +1,4 @@
+- name: Unmount devices
+  command: umount -R {{ mount_dir }}
+  args:
+    warn: false

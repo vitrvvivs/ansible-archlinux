@@ -1,15 +1,29 @@
-- file: path="{{ mount_dir }}" state=directory
+- name: Check if mount_dir is empty
+  command: /bin/ls -A {{ mount_dir }}
+  register: mount_dir_ls
+
+- name: Confirm mount point
+  pause: prompt="Mount point is '{{ mount_dir }}' but another filesystem is already mounted there. Continue? (Ctrl-c to cancel)"
+  when: mount_dir_ls.stdout != ''
+
+- name: Create root mount point
+  file: path="{{ mount_dir }}" state=directory
+
 - name: Mount root
   command: mount -t ext4 "{{ root_device }}" "{{ mount_dir }}"
   args:
     warn: false
   register: mount_root
   failed_when: mount_root.rc not in (0, 32)
+  changed_when: mount_root.rc == 0
 
-- file: path="{{ mount_dir }}/boot" state=directory
+- name: Create boot mount point
+  file: path="{{ mount_dir }}/boot" state=directory
+
 - name: Mount boot
   command: mount -t vfat "{{ boot_device }}" "{{ mount_dir }}/boot"
   args:
     warn: false
   register: mount_boot
   failed_when: mount_boot.rc not in (0, 32)
+  changed_when: mount_boot.rc == 0

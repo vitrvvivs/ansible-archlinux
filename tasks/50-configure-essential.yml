@@ -1,7 +1,9 @@
-- block:
-  - name: Check for existing fstab
-    command: grep -q '^\w*[^#]' {{ mount_dir }}/etc/fstab
-    changed_when: False
-  rescue:
-  - name: Generate fstab
-    shell: "{{ genfstab }} -U {{ mount_dir }} > {{ mount_dir }}/etc/fstab"
+- name: Check for existing fstab
+  command: grep -q '^\w*[^#]' {{ mount_dir }}/etc/fstab
+  register: fstab_exists
+  changed_when: False
+  failed_when: False
+
+- name: Generate fstab
+  shell: "{{ genfstab }} -U {{ mount_dir }} > {{ mount_dir }}/etc/fstab"
+  when: fstab_exists.rc != 0

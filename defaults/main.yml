@@ -2,12 +2,14 @@ mount_dir: /mnt
 temp_dir: /tmp
 extra_packages:
   - openssh
+  - python
 enable_services: 
   - sshd
 timezone: UTC
 locale: en_US.UTF-8
 no_verify_format: false
 
+# This should never need changing
 install_scripts_version: arch-install-scripts-22
 pacman_version: pacman-5.1.3
 reflector_version: reflector-2019.3

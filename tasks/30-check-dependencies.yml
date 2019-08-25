@@ -29,7 +29,7 @@
     register: reflector_installed
     ignore_errors: yes
     changed_when: False
-  when: base_install_required
+  when: (base_install_required | bool)
 
 - set_fact:
     install_scripts_required: "{{ ((base_install_required or arch_chroot_required) | bool) and install_scripts_installed.rc != 0 }}"

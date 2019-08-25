@@ -1,0 +1,8 @@
+- name: Copy extra files
+  copy: src="{{ extra_files }}/" dest="{{ mount_dir }}"
+  when: extra_files is defined
+
+- name: Enable services
+  command: "{{ chroot }} systemctl enable {{ item }}"
+  with_items: "{{ enable_services }}"
+  when: enable_services is defined

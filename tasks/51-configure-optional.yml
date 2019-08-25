@@ -46,9 +46,11 @@
       path: "{{ mount_dir }}/etc/locale.gen"
       regexp: '#({{ locale }}) '
       replace: '\1 '
+    register: locale_gen
 
   - name: Generate locales
     command: "{{ chroot }} locale-gen"
+    when: locale_gen.changed
 
   - copy: content="LANG={{ locale }}" dest="{{ mount_dir }}/etc/locale.conf" force=no
   when: locale is defined

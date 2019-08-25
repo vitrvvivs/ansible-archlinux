@@ -1,4 +1,4 @@
-Ansible role for installing and configuring Arch on a device  
+Ansible role for installing and configuring Arch on a device.  
 Running it with the mounts pointing to an existing Arch install will just update configuration.  
 
 **Assumes the host is GNU/Linux, booted from on UEFI**.  
@@ -19,33 +19,33 @@ Running it on a distro without the install tools (i.e. Debian) will compile them
 - run again to reapply configuration options
 
 ### Vars:
-#### required
 ```
+Formatting options:
 format_device     Wipe and format a drive; '/dev/sdc'
                   Sets 'root_device' and 'boot_device' automatically after format
-root_device       Root parition; mounts and installs at {{mount_dir}}
+root_device       Root parition; mounts, installs, and configures at {{mount_dir}}
 boot_device       UEFI parition; mounts at {{mount_dir}}/boot 
 mount_dir         where root_device should be mounted
-                  if {{mount_dir}}/etc/arch-release exists, installation is skipped
+                  if {{mount_dir}}/etc/arch-release exists, base installation is skipped
                   default: '/mnt'
-```
-#### optional
-```
 no_verify_format  set to true to format {{fomat_device}} without warning
+reboot            reboot after fresh install; boolean
+                  default: 'no'
+
+Configuration:
 hostname          new hostname
 root_password     new root password
 authorized_hosts  /root/.ssh/authorized_hosts contents
 extra_files       local directory to be merged into new / directory
+                      For network config, for instance
 extra_packages    list of packages to install from the Arch repository
-		  default: ['python', 'openssh']
+                  default: ['python', 'openssh']
 enable_services   list of systemd services to start at boot
                   default: 'sshd'
 local_packages    list of local package builds;
-                  '~/build/linux-ck.tar.xz', 'ftp://my-fileserver/package.tar.xz'
-timezone          something in the tz database; 'New York', 'London', 'UTC', etc.
+                  '~/build/linux-ck.pkg.tar.xz', 'ftp://my-fileserver/package.pkg.tar.xz'
+timezone          something in the tz database; 'New York', 'London', 'UTC+3', etc.
 locale            'en_US', 'zh_TW.UTF-8', etc.
-reboot            reboot after fresh install; boolean
-                  default: 'no'
 ```
 
 ### Examples:
@@ -54,7 +54,6 @@ reboot            reboot after fresh install; boolean
 #### Exmaple playbook:
 ```
 hosts.yml
-
 all:
   hosts:
     archpxe:
@@ -68,7 +67,7 @@ all:
       extra_files: testudo_root
       extra_packages:
         - wpa_supplicant
-      enable_services: 
+      enable_services:
         - systemd-networkd
         - wpa_supplicant@wlan0
       root_password: !vault |
@@ -77,13 +76,12 @@ all:
       ansible_user: root
 
 arch.yml
-
 ---
 - hosts:
-    - nas
+    - archpxe
   roles:
     - archlinux
 ```
 ```
-ansible-playbook --vault-password-file=~/.ansible/vault_password -i hosts.yml arch.yml
+ansible-playbook -i hosts.yml arch.yml
 ```

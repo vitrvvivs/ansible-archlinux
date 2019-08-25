@@ -51,4 +51,4 @@
       dest: "{{ pacman_prefix }}/etc/pacman.conf"
       force: yes
 
-  when: pacman_required
+  when: pacman_required | bool
